@@ -37,13 +37,16 @@
                     @forelse ($dataDokumen as $dokumen)
                         <div class="card shadow-sm border-0 rounded-3 p-3 mb-3">
                             <div class="row align-items-center g-4">
-                                <!-- Gambar -->
+                                <!-- Gambar / Cover Preview -->
                                 <div class="col-md-3 text-center">
-                                    {{-- <img src="{{ Storage::url($dokumen->thumbnail_path) }}" alt="thumbnail file"
-                                        class="img-fluid" style="max-width:150px;"> --}}
-                                    <div class="icon-box">
-                                        <i class="bi bi-journal-bookmark-fill" style="font-size:160px; color:#296cc5; text-shadow: 3px 3px 6px rgba(0,0,0,0.25); "></i>
-                                    </div>
+                                    @if ($dokumen->thumbnail_path)
+                                        <img src="{{ Storage::url($dokumen->thumbnail_path) }}" alt="{{ $dokumen->nama_dokumen }}"
+                                            class="img-fluid rounded shadow-sm border" style="max-height: 200px; width: auto; object-fit: contain;">
+                                    @else
+                                        <div class="icon-box">
+                                            <i class="bi bi-journal-bookmark-fill" style="font-size:160px; color:#296cc5; text-shadow: 3px 3px 6px rgba(0,0,0,0.25); "></i>
+                                        </div>
+                                    @endif
                                 </div>
                                 
 

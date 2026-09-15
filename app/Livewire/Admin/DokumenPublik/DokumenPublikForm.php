@@ -20,6 +20,9 @@ class DokumenPublikForm extends Component
     public $deskripsiDokumen;
     public $file;
     public $existingFile;
+    public $cover;
+    public $existingCover;
+    public $removeCover = false;
 
     public $isEdit = false;
 
@@ -31,7 +34,8 @@ class DokumenPublikForm extends Component
             'fkidBidang' => 'required|exists:tbl_bidang,id',
             'namaDokumen' => 'required|string|max:255',
             'deskripsiDokumen' => 'required|string',
-            'file' => $fileRule . '|file|mimes:pdf|max:22240', // max 10MB
+            'file' => $fileRule . '|file|mimes:pdf|max:22240', // max 20MB
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // max 5MB
         ];
     }
 
@@ -40,8 +44,11 @@ class DokumenPublikForm extends Component
         'namaDokumen.required' => 'Nama dokumen harus diisi',
         'deskripsiDokumen.required' => 'Deskripsi harus diisi',
         'file.required' => 'File dokumen harus diupload',
-        'file.mimes' => 'File harus berformat: PDF, Word, Excel, atau PowerPoint',
-        'file.max' => 'Ukuran file maksimal 20MB',
+        'file.mimes' => 'File harus berformat PDF',
+        'file.max' => 'Ukuran file dokumen maksimal 20MB',
+        'cover.image' => 'Cover harus berupa file gambar',
+        'cover.mimes' => 'Format cover harus: JPG, JPEG, PNG, atau WEBP',
+        'cover.max' => 'Ukuran cover maksimal 5MB',
     ];
 
     public function mount($id = null)
@@ -54,6 +61,7 @@ class DokumenPublikForm extends Component
             $this->fkidBidang = $dokumen->fkid_bidang ?? null;
             $this->namaDokumen = $dokumen->nama_dokumen;
             $this->deskripsiDokumen = $dokumen->deskripsi_dokumen;
+            $this->existingCover = $dokumen->thumbnail_path;
             $this->existingFile = [
                 'name' => $dokumen->file_name,
                 'type' => $dokumen->file_type,
@@ -61,6 +69,18 @@ class DokumenPublikForm extends Component
                 'path' => $dokumen->file_path
             ];
         }
+    }
+
+    public function removeExistingCover()
+    {
+        $this->cover = null;
+        $this->existingCover = null;
+        $this->removeCover = true;
+    }
+
+    public function resetCoverUpload()
+    {
+        $this->cover = null;
     }
 
     public function save()
@@ -84,6 +104,12 @@ class DokumenPublikForm extends Component
     private function create()
     {
         $fileData = $this->uploadFile();
+        $coverPath = null;
+
+        if ($this->cover) {
+            $coverData = $this->uploadCover();
+            $coverPath = $coverData['path'];
+        }
 
         DokumenPublik::create([
             'fkid_bidang' => $this->fkidBidang,
@@ -93,6 +119,7 @@ class DokumenPublikForm extends Component
             'file_name' => $fileData['name'],
             'file_type' => $fileData['type'],
             'file_size' => $fileData['size'],
+            'thumbnail_path' => $coverPath,
         ]);
     }
 
@@ -106,9 +133,8 @@ class DokumenPublikForm extends Component
             'deskripsi_dokumen' => $this->deskripsiDokumen,
         ];
 
-        // Jika ada file baru diupload
+        // Jika ada file dokumen baru diupload
         if ($this->file) {
-            // Hapus file lama
             if (Storage::disk('public')->exists($dokumen->file_path)) {
                 Storage::disk('public')->delete($dokumen->file_path);
             }
@@ -118,6 +144,21 @@ class DokumenPublikForm extends Component
             $data['file_name'] = $fileData['name'];
             $data['file_type'] = $fileData['type'];
             $data['file_size'] = $fileData['size'];
+        }
+
+        // Handle update cover / thumbnail
+        if ($this->cover) {
+            if ($dokumen->thumbnail_path && Storage::disk('public')->exists($dokumen->thumbnail_path)) {
+                Storage::disk('public')->delete($dokumen->thumbnail_path);
+            }
+
+            $coverData = $this->uploadCover();
+            $data['thumbnail_path'] = $coverData['path'];
+        } elseif ($this->removeCover) {
+            if ($dokumen->thumbnail_path && Storage::disk('public')->exists($dokumen->thumbnail_path)) {
+                Storage::disk('public')->delete($dokumen->thumbnail_path);
+            }
+            $data['thumbnail_path'] = null;
         }
 
         $dokumen->update($data);
@@ -135,14 +176,26 @@ class DokumenPublikForm extends Component
         // Store file
         $path = $this->file->storeAs('dokumen-publik', $fileName, 'public');
 
-        $result = [
+        return [
             'path' => $path,
             'name' => $originalName,
             'type' => $extension,
             'size' => $fileSize,
         ];
+    }
 
-        return $result;
+    private function uploadCover()
+    {
+        $extension = $this->cover->getClientOriginalExtension();
+        $coverName = 'cover_' . Str::slug($this->namaDokumen) . '_' . time() . '.' . $extension;
+
+        // Store cover file in public storage
+        $path = $this->cover->storeAs('dokumen-publik/covers', $coverName, 'public');
+
+        return [
+            'path' => $path,
+            'name' => $coverName,
+        ];
     }
 
     #[Layout('components.layouts.admin', ['title' => 'Admin | Upload Dokumen', 'pageTitle' => 'Upload Dokumen'])]

@@ -35,10 +35,11 @@
                 @forelse($dataDokumen as $dokumen)
                     <div class="col-md-3">
                         <div class="h-100 shadow-sm overflow-hidden rounded">
-                            {{-- Thumbnail --}}
-                            <div class="overflow-hidden" style="height: 250px;">
+                            {{-- Thumbnail / Cover --}}
+                            <div class="overflow-hidden bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
                                 @if ($dokumen->thumbnail_path)
-                                    <img src="{{ asset('storage/' . $dokumen->thumbnail_path) }}" class="card-img-top"
+                                    <img src="{{ asset('storage/' . $dokumen->thumbnail_path) }}" class="card-img-top w-100 h-100"
+                                        style="object-fit: cover;"
                                         alt="{{ $dokumen->nama_dokumen }}">
                                 @else
                                     <div class="icon-box text-center">

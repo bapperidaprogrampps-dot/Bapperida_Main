@@ -11,12 +11,12 @@
     <div class="row my-4">
         <div class="col-md-4 mb-3">
             @if ($dokumen->thumbnail_path)
-                <div class="text-start mb-4">
-                    <img src="{{ Storage::url($dokumen->thumbnail_path) }}" alt="Thumbnail {{ $dokumen->nama_dokumen }}"
-                        class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: cover;">
+                <div class="text-center mb-4 p-2 bg-light rounded border shadow-sm">
+                    <img src="{{ Storage::url($dokumen->thumbnail_path) }}" alt="Cover {{ $dokumen->nama_dokumen }}"
+                        class="img-fluid rounded" style="max-height: 350px; width: 100%; object-fit: contain;">
                 </div>
             @else
-                <div class="text-center mb-4 bg-light rounded py-5">
+                <div class="text-center mb-4 bg-light rounded py-5 border">
                     <i class="bi bi-file-earmark-{{ strtolower($dokumen->file_type) }} display-1 text-muted"></i>
                 </div>
             @endif

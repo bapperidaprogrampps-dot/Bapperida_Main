@@ -11,30 +11,41 @@
         </ol>
     </nav>
     <div class="my-4">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <p class="m-0">nama dokumen</p>
-                    <p class="fw-bold">{{ $dokumen->nama_dokumen }}</p>
+        <div class="row g-4 align-items-start">
+            @if ($dokumen->thumbnail_path)
+                <div class="col-md-3 text-center">
+                    <img src="{{ Storage::url($dokumen->thumbnail_path) }}" alt="Cover {{ $dokumen->nama_dokumen }}"
+                        class="img-fluid rounded shadow border" style="max-height: 280px; width: auto; object-fit: contain;">
                 </div>
-                <div class="mb-3">
-                    <p class="m-0">Bidang</p>
-                    <p class="fw-bold">{{ $dokumen->bidang->nama_bidang ?? 'belum ditentukan' }}</p>
+            @endif
+
+            <div class="{{ $dokumen->thumbnail_path ? 'col-md-9' : 'col-md-12' }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted d-block m-0">Nama Dokumen</small>
+                            <p class="fw-bold fs-5 mb-0">{{ $dokumen->nama_dokumen }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block m-0">Bidang</small>
+                            <p class="fw-bold mb-0">{{ $dokumen->bidang->nama_bidang ?? 'Belum ditentukan' }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted d-block m-0">Format & Ukuran</small>
+                            <p class="fw-bold mb-0">{{ strtoupper($dokumen->file_type) }} • {{ $dokumen->formatted_size }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block m-0">Tanggal Ditambahkan</small>
+                            <p class="fw-bold mb-0">{{ $dokumen->created_at->format('d M Y H:i') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <small class="text-muted d-block m-0">Deskripsi</small>
+                        <p class="text-secondary mb-0">{{ $dokumen->deskripsi_dokumen }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <p class="m-0">Bidang</p>
-                    <p class="fw-bold">{{ $dokumen->bidang->nama_bidang ?? 'belum ditentukan' }}</p>
-                </div>
-                <div class="mb-3">
-                    <p class="d-block m-0">tangga ditambahkan</p>
-                    <p class="fw-bold">{{ $dokumen->created_at->format('d M Y H:i') }}</p>
-                </div>
-            </div>
-            <div class="mb-3">
-                <p class=" d-block m-0">Deskripsi</p>
-                <p class="fw-bold">{{ $dokumen->deskripsi_dokumen }}</p>
             </div>
         </div>
         <div class="my-5 card">
