@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && node -e \"const fs=require('fs'); if(fs.existsSync('public/build')) fs.cpSync('public/build', 'dist', {recursive:true});\"",
         "dev": "vite"
     },
     "dependencies": {
